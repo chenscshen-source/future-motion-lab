@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   type ElementType,
   type ReactNode,
   createElement,
@@ -10,7 +11,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { gsap } from "gsap";
 import "./TextType.css";
 
 type VariableSpeed = { min: number; max: number };
@@ -62,7 +62,6 @@ export default function TextType({
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
-  const cursorRef = useRef<HTMLSpanElement | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
@@ -92,20 +91,8 @@ export default function TextType({
     return () => observer.disconnect();
   }, [startOnVisible]);
 
-  useEffect(() => {
-    if (!showCursor || !cursorRef.current) return;
-    gsap.set(cursorRef.current, { opacity: 1 });
-    const tween = gsap.to(cursorRef.current, {
-      opacity: 0,
-      duration: cursorBlinkDuration,
-      repeat: -1,
-      yoyo: true,
-      ease: "power2.inOut",
-    });
-    return () => {
-      tween.kill();
-    };
-  }, [showCursor, cursorBlinkDuration]);
+  // Cursor blink is driven by a CSS @keyframes; the duration flows in via a
+  // custom property so callers can still tune it through the prop.
 
   useEffect(() => {
     if (!isVisible) return;
@@ -189,10 +176,10 @@ export default function TextType({
     </span>,
     showCursor && (
       <span
-        ref={cursorRef}
         className={`text-type__cursor ${cursorClassName} ${
           shouldHideCursor ? "text-type__cursor--hidden" : ""
         }`.trim()}
+        style={{ "--cursor-blink-duration": `${cursorBlinkDuration}s` } as CSSProperties}
         aria-hidden="true"
       >
         {cursorCharacter}

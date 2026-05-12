@@ -7,8 +7,15 @@
   margin-left: 0.25rem;
   display: inline-block;
   opacity: 1;
+  animation: text-type-cursor-blink var(--cursor-blink-duration, 0.5s) ease-in-out infinite alternate;
 }
 
 .text-type__cursor--hidden {
   display: none;
+}
+
+@keyframes text-type-cursor-blink {
+  to {
+    opacity: 0;
+  }
 }

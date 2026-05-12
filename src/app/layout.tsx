@@ -5,7 +5,8 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 import "./globals.css";
-import { LANG_COOKIE, LangProvider, type Lang } from "@/lib/i18n";
+import { LangProvider } from "@/lib/i18n";
+import { LANG_COOKIE, type Lang } from "@/lib/i18n-shared";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -70,6 +71,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#0a0a0a",
   colorScheme: "dark",
 };

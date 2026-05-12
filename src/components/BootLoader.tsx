@@ -7,6 +7,7 @@ export function BootLoader() {
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = window.matchMedia("(max-width: 820px)").matches;
     document.body.style.overflow = "hidden";
 
     if (reduceMotion) {
@@ -20,11 +21,15 @@ export function BootLoader() {
       };
     }
 
-    const splitTimer = window.setTimeout(() => setPhase("split"), 380);
+    // 移动端缩短：避免和首屏 LCP 叠加产生"白屏感"
+    const splitDelay = isMobile ? 220 : 380;
+    const doneDelay = isMobile ? 600 : 1280;
+
+    const splitTimer = window.setTimeout(() => setPhase("split"), splitDelay);
     const doneTimer = window.setTimeout(() => {
       setPhase("done");
       document.body.style.overflow = "";
-    }, 1280);
+    }, doneDelay);
 
     return () => {
       window.clearTimeout(splitTimer);

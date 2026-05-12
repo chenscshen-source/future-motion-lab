@@ -21,6 +21,9 @@ pnpm-debug.log*
 .DS_Store
 *.swp
 
+# claude code internal
+.claude/worktrees/
+
 # raw source assets staged at repo root — must not be committed.
 # Put working files under public/ (web-served) or outside the repo.
 /_sources/

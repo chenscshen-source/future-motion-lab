@@ -8,10 +8,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { LANG_COOKIE } from "@/lib/i18n-shared";
+import type { Lang } from "@/lib/i18n-shared";
 
-export type Lang = "zh" | "en";
+export type { Lang } from "@/lib/i18n-shared";
+export { LANG_COOKIE } from "@/lib/i18n-shared";
 
-export const LANG_COOKIE = "site-lang";
 const EVENT_NAME = "fml:langchange";
 // One year — matches localStorage's effective persistence.
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
