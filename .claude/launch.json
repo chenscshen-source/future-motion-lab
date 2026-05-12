@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "未来接口实验室 (Next.js)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd '/Users/shenchen/Downloads/Dev/未来接口实验室网站' && npm run dev -- -p 3157"],
+      "port": 3157,
+      "autoPort": true
+    }
+  ]
+}

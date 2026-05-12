@@ -1,0 +1,42 @@
+# dependencies
+node_modules
+
+# build output
+.next
+out
+dist
+tsconfig.tsbuildinfo
+
+# env
+.env*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# os / editor
+.DS_Store
+*.swp
+
+# raw source assets staged at repo root — must not be committed.
+# Put working files under public/ (web-served) or outside the repo.
+/_sources/
+/*.mp4
+/*.MP4
+/*.mov
+/*.MOV
+/*.png
+/*.PNG
+/*.jpg
+/*.JPG
+/*.jpeg
+/*.JPEG
+/*.pdf
+/*.PDF
+/Frame*
+/Image*
+/Chen.svg
+/sean.svg

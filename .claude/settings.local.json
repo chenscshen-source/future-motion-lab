@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kill 67917)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s \"http://localhost:3000/\")",
+      "Bash(lsof -i :3000 -sTCP:LISTEN)",
+      "Bash(kill 98271)",
+      "Bash(npx tsc *)",
+      "Bash(awk -F: '$1>2400')",
+      "Bash(awk ' *)",
+      "WebFetch(domain:www.rhythminfluence.com)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__javascript_tool",
+      "Bash(ffmpeg -version)",
+      "Bash(brew list *)",
+      "Bash(avconvert --help)",
+      "Bash(avconvert --source /Users/shenchen/Downloads/Dev/未来接口实验室网站/public/videos/automotive混剪.mov --preset Preset1920x1080 --output /Users/shenchen/Downloads/Dev/未来接口实验室网站/public/videos/automotive.mp4 --replace --progress)",
+      "Bash(npm install *)",
+      "WebFetch(domain:kokto.studio)"
+    ]
+  }
+}
