@@ -1864,7 +1864,18 @@ body.is-video-modal-open .side-rail {
   }
 
   .video-modal-player {
-    aspect-ratio: 960 / 544;
+    /* Mobile: let the player size to the actual video, no forced ratio.
+       Prevents letterboxing when the source isn't exactly 16:9. */
+    aspect-ratio: auto;
+    width: 100%;
+    max-height: calc(100svh - 96px);
+  }
+
+  .video-modal-player video {
+    width: 100%;
+    height: auto;
+    max-height: calc(100svh - 96px);
+    object-fit: contain;
   }
 
   .video-modal-scroll-gallery {
