@@ -19,6 +19,9 @@ type Props = {
  * - 客户端挂载后探测视口：
  *   · 桌面 → preload=auto, autoplay
  *   · 移动 → 若提供 mobileSrc 则切换源并 preload=metadata；否则完全不加载视频，仅显示 poster
+ * - 微信内置浏览器（X5/TBS、iOS WKWebView）的兼容：
+ *   · Android X5 内核：需要 x5-video-player-type=h5-inline 才能 inline 播放
+ *   · iOS 微信：autoplay 可能要等 WeixinJSBridgeReady 才能成功；额外加 tap-to-play 兜底
  * - 避免 hydration mismatch：服务端不写 autoplay/preload，全部由 effect 设置
  */
 export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 768 }: Props) {
@@ -37,6 +40,13 @@ export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 768 }: Pr
     const video = videoRef.current;
     if (!video || mode === "pending") return;
 
+    // 微信内核：补 X5/WKWebView 私有属性。React 不支持驼峰版，用 setAttribute 写。
+    video.setAttribute("webkit-playsinline", "true");
+    video.setAttribute("x5-playsinline", "true");
+    video.setAttribute("x5-video-player-type", "h5-inline");
+    video.setAttribute("x5-video-player-fullscreen", "false");
+    video.setAttribute("x5-video-orientation", "portraint");
+
     // 移动端：优先使用 mobileSrc；缺省时回退到桌面源，保证背景视频始终可见
     const nextSrc = mode === "mobile" ? (mobileSrc ?? src) : src;
     if (video.getAttribute("src") !== nextSrc) {
@@ -44,12 +54,44 @@ export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 768 }: Pr
       video.load();
     }
     video.preload = mode === "mobile" ? "metadata" : "auto";
-    const playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {
-        /* iOS / 微信首次需要用户手势，poster 会兜底 */
-      });
+
+    const tryPlay = () => {
+      const p = video.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    };
+
+    tryPlay();
+
+    // 微信 iOS：autoplay 经常被拦，等 JSBridge 就绪后再尝试
+    const ua = navigator.userAgent.toLowerCase();
+    const isWeixin = ua.includes("micromessenger");
+    const onBridgeReady = () => tryPlay();
+    if (isWeixin) {
+      // 已就绪的情况下直接重试；否则监听一次
+      if (
+        typeof window !== "undefined" &&
+        (window as unknown as { WeixinJSBridge?: unknown }).WeixinJSBridge
+      ) {
+        tryPlay();
+      } else {
+        document.addEventListener("WeixinJSBridgeReady", onBridgeReady, { once: true });
+      }
     }
+
+    // 兜底：首次用户触摸/点击页面任意位置时再触发一次播放
+    const onUserGesture = () => {
+      tryPlay();
+      document.removeEventListener("touchstart", onUserGesture);
+      document.removeEventListener("click", onUserGesture);
+    };
+    document.addEventListener("touchstart", onUserGesture, { once: true, passive: true });
+    document.addEventListener("click", onUserGesture, { once: true });
+
+    return () => {
+      document.removeEventListener("WeixinJSBridgeReady", onBridgeReady);
+      document.removeEventListener("touchstart", onUserGesture);
+      document.removeEventListener("click", onUserGesture);
+    };
   }, [mode, src, mobileSrc]);
 
   return (
