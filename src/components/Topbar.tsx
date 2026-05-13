@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
 import { navItems } from "@/content/site";
+import { setLanguage, useLanguage } from "@/lib/i18n";
 import { scrollToSection as scrollTo } from "@/lib/scroll";
 
 const sectionIds = navItems.map((item) => item.href.replace("#", ""));
@@ -11,6 +11,7 @@ const sectionIds = navItems.map((item) => item.href.replace("#", ""));
 export function Topbar() {
   const [activeId, setActiveId] = useState(sectionIds[0]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const lang = useLanguage();
 
   useEffect(() => {
     const observed = sectionIds
@@ -38,19 +39,24 @@ export function Topbar() {
     return () => observer.disconnect();
   }, []);
 
-  // 抽屉开启时锁定背景滚动 + ESC 关闭
+  // Lock body scroll while the mobile drawer is open
   useEffect(() => {
     if (!menuOpen) return;
-    const prevOverflow = document.body.style.overflow;
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!menuOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
   const goToSection = (id: string) => {
@@ -60,96 +66,83 @@ export function Topbar() {
   };
 
   return (
-    <>
-      <header className="topbar">
-        <a
-          className="brandline brand-logo"
-          href="#lab"
-          aria-label="Future Motion Lab"
-          onClick={(event) => {
-            event.preventDefault();
-            goToSection("lab");
-          }}
-        >
-          <Image
-            src="/logo-horizontal.svg"
-            alt="Future Motion Lab"
-            width={173}
-            height={58}
-            priority
-          />
-        </a>
-        <nav className="nav-links" aria-label="Primary navigation">
-          {navItems.map((item) => {
-            const id = item.href.replace("#", "");
-            const isActive = id === activeId;
-            return (
-              <a
-                key={item.label}
-                className={isActive ? "active" : ""}
-                href={item.href}
-                aria-current={isActive ? "true" : undefined}
-                onClick={(event) => {
-                  event.preventDefault();
-                  goToSection(id);
-                }}
-              >
-                <span className="i18n-zh">{item.label}</span>
-                <span className="i18n-en">{item.labelEn}</span>
-              </a>
-            );
-          })}
-        </nav>
-
+    <header className={`topbar${menuOpen ? " is-menu-open" : ""}`}>
+      <a
+        className="brandline brand-logo"
+        href="#lab"
+        aria-label="Future Motion Lab"
+        onClick={(event) => {
+          event.preventDefault();
+          goToSection("lab");
+        }}
+      >
+        <Image
+          src="/logo-horizontal.svg"
+          alt="Future Motion Lab"
+          width={173}
+          height={58}
+          priority
+        />
+      </a>
+      <nav
+        id="topbar-nav"
+        className={`nav-links${menuOpen ? " is-open" : ""}`}
+        aria-label="Primary navigation"
+      >
+        {navItems.map((item) => {
+          const id = item.href.replace("#", "");
+          const isActive = id === activeId;
+          return (
+            <a
+              key={item.label}
+              className={isActive ? "active" : ""}
+              href={item.href}
+              aria-current={isActive ? "true" : undefined}
+              onClick={(event) => {
+                event.preventDefault();
+                goToSection(id);
+              }}
+            >
+              <span className="i18n-zh">{item.label}</span>
+              <span className="i18n-en">{item.labelEn}</span>
+            </a>
+          );
+        })}
+      </nav>
+      <div
+        className="topbar-lang-toggle rail-lang-toggle"
+        role="group"
+        aria-label="Switch language / 切换语言"
+      >
         <button
           type="button"
-          className="nav-toggle"
-          aria-label={menuOpen ? "关闭菜单" : "打开菜单"}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-nav-drawer"
-          onClick={() => setMenuOpen((v) => !v)}
+          className={lang === "zh" ? "is-active" : ""}
+          onClick={() => lang !== "zh" && setLanguage("zh")}
+          aria-pressed={lang === "zh"}
         >
-          {menuOpen ? <X size={22} strokeWidth={1.5} /> : <Menu size={22} strokeWidth={1.5} />}
+          中文
         </button>
-      </header>
-
-      <div
-        id="mobile-nav-drawer"
-        className={`nav-drawer ${menuOpen ? "is-open" : ""}`}
-        role="dialog"
-        aria-modal="true"
-        aria-hidden={!menuOpen}
-        onClick={() => setMenuOpen(false)}
-      >
-        <nav
-          className="nav-drawer-list"
-          aria-label="Mobile navigation"
-          onClick={(event) => event.stopPropagation()}
+        <span className="rail-lang-divider" aria-hidden="true" />
+        <button
+          type="button"
+          className={lang === "en" ? "is-active" : ""}
+          onClick={() => lang !== "en" && setLanguage("en")}
+          aria-pressed={lang === "en"}
         >
-          {navItems.map((item, index) => {
-            const id = item.href.replace("#", "");
-            const isActive = id === activeId;
-            return (
-              <a
-                key={item.label}
-                href={item.href}
-                className={isActive ? "active" : ""}
-                style={{ ["--i" as string]: index }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  goToSection(id);
-                }}
-              >
-                <span className="nav-drawer-num">{String(index + 1).padStart(2, "0")}</span>
-                <span className="nav-drawer-label">
-                  <span className="i18n-zh">{item.label}</span>
-                  <span className="i18n-en">{item.labelEn}</span>
-                </span>
-              </a>
-            );
-          })}
-        </nav>
+          EN
+        </button>
       </div>
-    </>
+      <button
+        type="button"
+        className="topbar-menu-btn"
+        aria-label={menuOpen ? "Close menu / 关闭菜单" : "Open menu / 打开菜单"}
+        aria-expanded={menuOpen}
+        aria-controls="topbar-nav"
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        <span className="topbar-menu-bar" aria-hidden="true" />
+        <span className="topbar-menu-bar" aria-hidden="true" />
+      </button>
+    </header>
   );
 }

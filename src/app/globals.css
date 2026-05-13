@@ -282,6 +282,62 @@ button {
   gap: 8px;
 }
 
+/* The topbar variant is hidden on desktop (the side rail handles it).
+   It becomes visible on mobile where the side rail is removed. */
+.topbar-lang-toggle {
+  display: none;
+}
+
+/* Hamburger button — hidden on desktop, shown on mobile.
+   Minimal: just two thin rules, no frame; tap target stays 36×36. */
+.topbar-menu-btn {
+  display: none;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.topbar-menu-bar {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.85);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 220ms ease,
+    background-color 200ms ease;
+}
+
+.topbar-menu-btn:hover .topbar-menu-bar {
+  background: #ffffff;
+}
+
+/* Make the upper bar slightly shorter for a subtler resting state */
+.topbar-menu-btn .topbar-menu-bar:first-child {
+  width: 22px;
+}
+
+.topbar-menu-btn .topbar-menu-bar:last-child {
+  width: 14px;
+}
+
+.topbar.is-menu-open .topbar-menu-bar:first-child {
+  width: 22px;
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.topbar.is-menu-open .topbar-menu-bar:last-child {
+  width: 22px;
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
 .rail-lang-toggle button {
   position: relative;
   display: inline-flex;
@@ -564,19 +620,6 @@ button {
     scale(calc(1 + var(--hero-exit-progress, 0) * 0.08));
   transform-origin: 50% 50%;
   will-change: transform, filter;
-}
-
-/* 底图层：永远存在，比 <video> 低一级，视频未就绪时顶住背景 */
-.hero-video-poster {
-  z-index: -1;
-}
-
-/* <video> 还没注入 src 时透明，避免黑屏盖住底图 */
-video.hero-video:not([src]) {
-  opacity: 0;
-}
-video.hero-video {
-  transition: opacity 260ms ease;
 }
 
 .hero-section::after {
@@ -1523,7 +1566,7 @@ body.is-video-modal-open .side-rail {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   :root {
     --page-gutter: 18px;
   }
@@ -1550,17 +1593,128 @@ body.is-video-modal-open .side-rail {
     top: 0;
     left: 0;
     right: 0;
-    grid-template-columns: 1fr;
+    display: flex;
+    align-items: center;
     gap: 14px;
-    padding: 18px 18px 0;
+    padding: 14px 18px;
+    background: transparent;
+    z-index: 60;
   }
 
+  /* No backdrop — add subtle shadows so the topbar elements stay readable
+     over BOTH dark (hero) and light (about) sections. */
+  .topbar .brand-logo img,
+  .topbar-menu-bar {
+    filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.55));
+  }
+
+  .topbar-lang-toggle button {
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Push language toggle + hamburger to the right edge */
+  .topbar-lang-toggle {
+    margin-left: auto;
+  }
+
+  .topbar.is-menu-open {
+    background: rgba(5, 7, 6, 0.96);
+    backdrop-filter: blur(18px);
+  }
+
+  /* Drawer: right-aligned, refined typography, hairline dividers */
   .nav-links {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: calc(100svh - 64px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 28px 22px 56px;
+    overflow: auto;
+    background: rgba(5, 7, 6, 0.94);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    transform: translateY(-6px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 55;
+    text-transform: none;
+    transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nav-links.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-links a {
+    width: 100%;
     height: auto;
-    gap: 18px;
-    overflow-x: auto;
-    padding-bottom: 18px;
-    font-size: 12px;
+    padding: 22px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: var(--font-cn-display);
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: none;
+    text-align: right;
+    justify-content: flex-end;
+    transition: color 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    /* Stagger entrance — each item rises slightly after the drawer */
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  .nav-links.is-open a {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 320ms ease var(--i-delay, 0ms),
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--i-delay, 0ms),
+      color 180ms ease;
+  }
+
+  .nav-links a:nth-child(1) { --i-delay: 80ms; }
+  .nav-links a:nth-child(2) { --i-delay: 140ms; }
+  .nav-links a:nth-child(3) { --i-delay: 200ms; }
+  .nav-links a:nth-child(4) { --i-delay: 260ms; }
+
+  .nav-links a:last-child {
+    border-bottom: 0;
+  }
+
+  .nav-links a.active,
+  .nav-links a:active {
+    color: #ffffff;
+  }
+
+  .nav-links a::after {
+    display: none;
+  }
+
+  .topbar-lang-toggle {
+    position: static;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  .topbar-lang-toggle .rail-lang-divider {
+    height: 10px;
+    width: 1px;
+  }
+
+  .topbar-menu-btn {
+    display: inline-flex;
   }
 
   .nav-links a {
@@ -1572,28 +1726,65 @@ body.is-video-modal-open .side-rail {
   }
 
   .hero-section {
-    min-height: 700px;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    padding-bottom: 24px;
   }
 
   .home-deck .hero-section {
     margin-top: 0;
-    min-height: 700px;
+    min-height: 100svh;
     padding-top: 0;
   }
 
   .hero-copy {
-    padding: 96px 18px 32px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    padding: 0 18px 0;
+    gap: 4px;
+  }
+
+  .hero-warp-title {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .hero-title-row {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-title-row .text-pressure-title {
+    font-size: clamp(52px, 14.5vw, 92px) !important;
+    width: max-content !important;
+    max-width: 100% !important;
+  }
+
+  .hero-lede-shell {
+    margin-bottom: 0;
   }
 
   .hero-signature {
-    right: 18px;
-    bottom: 22px;
-    gap: 6px;
+    position: static;
+    order: 3;
+    align-self: flex-start;
+    margin: 14px 0 0;
+    padding: 0 18px;
+    right: auto;
+    bottom: auto;
+    max-width: 100%;
+    gap: 8px;
+    transform: none;
+    opacity: 1;
   }
 
   .hero-signature-avatar {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
   }
 
   .hero-signature-avatar + .hero-signature-avatar {
@@ -1601,12 +1792,7 @@ body.is-video-modal-open .side-rail {
   }
 
   .hero-signature-text {
-    font-size: 11px;
-  }
-
-  .hero-warp-title {
-    font-size: clamp(78px, 20vw, 136px);
-    line-height: 0.92;
+    font-size: 12px;
   }
 
   .hero-lede-shell {
@@ -1731,74 +1917,35 @@ body.is-video-modal-open .side-rail {
 
   .reel-row {
     display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     width: 100%;
+    padding-right: 0;
     transform: none !important;
   }
 
   .reel-card {
     width: 100%;
+    max-width: 100%;
     flex-basis: auto;
   }
 
-  .reel-frame {
-    /* 横版构图匹配 16/9 封面（避免人脸/风景被竖切） */
-    aspect-ratio: 16 / 9;
+  .reel-card.is-lead-wide {
+    flex-basis: auto;
+    width: 100%;
+    max-width: 100%;
+    grid-column: 1 / -1;
   }
 
-  /* lead-wide 卡片在桌面是 400px 固定高 16/9，移动端继承 16/9 自适应宽度 */
+  .reel-frame,
   .reel-card.is-lead-wide .reel-frame {
+    width: 100%;
     height: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .reel-card.is-lead-wide .reel-frame {
     aspect-ratio: 16 / 9;
-  }
-
-  /* 底部常驻标题条用的渐变遮罩（复用 .reel-hover-veil 元素，重定位） */
-  .reel-hover-veil {
-    opacity: 1 !important;
-    background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.78) 100%);
-    transition: none;
-  }
-
-  /* 移动端：把居中信息层改为底部常驻标题（每张卡都看得到作品名） */
-  .reel-hover-meta {
-    visibility: visible !important;
-    inset: auto 0 0 0;            /* 改为底部对齐 */
-    padding: 0 14px 12px;
-    justify-content: flex-end;
-    align-items: flex-start;
-    text-align: left;
-    pointer-events: none;
-  }
-
-  .reel-hover-top,
-  .reel-hover-rule,
-  .reel-hover-bottom {
-    opacity: 1 !important;
-    animation: none !important;
-    margin: 0;
-  }
-
-  /* 隐藏分隔线（移动端紧凑布局不需要） */
-  .reel-hover-rule {
-    display: none;
-  }
-
-  .reel-hover-top {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 4px;
-  }
-
-  .reel-hover-bottom {
-    font-size: 15px;
-    line-height: 1.25;
-    font-weight: 500;
-    color: #fff;
-  }
-
-  .reel-hover-type,
-  .reel-hover-title {
-    font-family: var(--font-micro);
   }
 
   .deep-section {
@@ -1840,16 +1987,15 @@ body.is-video-modal-open .side-rail {
   }
 
   .hero-section {
-    min-height: 660px;
+    min-height: 100svh;
   }
 
   .home-deck .hero-section {
-    min-height: 660px;
+    min-height: 100svh;
   }
 
   .hero-signature {
-    right: 14px;
-    bottom: 22px;
+    padding: 0 14px;
     gap: 6px;
   }
 
@@ -3036,7 +3182,7 @@ html[data-lang="en"] .reveal-line {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   .about-contact-cover-base > .dispatch-section {
     padding-top: 88px;
   }
@@ -3053,32 +3199,346 @@ html[data-lang="en"] .reveal-line {
   }
 
   .manifesto-headline {
-    font-size: clamp(26px, 7vw, 40px);
+    font-size: clamp(26px, 7.2vw, 40px);
     line-height: 1.3;
+    letter-spacing: 0;
   }
 
-  .person-card {
+  /* Lede body text is primary reading content — bump from 12 → 14 */
+  .manifesto-lede,
+  .manifesto-lede p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .manifesto-tag {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
+
+  .manifesto-meta {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+  }
+
+  /* Contact section's cinematic headline is a primary CTA-tier element — give
+     it more presence than the inline about headline */
+  .dispatch-section .manifesto-headline,
+  .manifesto-headline--cinematic {
+    font-size: clamp(28px, 7.8vw, 42px);
+    line-height: 1.22;
+  }
+
+  /* English text — let it wrap at word boundaries (CN doesn't need this) */
+  html[data-lang="en"] .reveal-line {
+    word-spacing: 0.04em;
+  }
+
+  /* Per-char split (inline-block) lets the browser break BETWEEN characters,
+     producing "ge / nerative" mid-word wraps on narrow viewports. Fall back
+     to inline on mobile — disables the hover translate (no hover anyway) but
+     keeps the color reveal which is the primary effect. */
+  .char-unit {
+    display: inline;
+    transform: none !important;
+  }
+
+  /* About section — the pinned/sticky trick + cover reveal isn't great on
+     short mobile viewports. Let it scroll normally. */
+  .about-pin-scene,
+  .about-contact-cover-scene .about-pin-scene {
+    height: auto;
+  }
+
+  .about-pin-scene > .manifesto-section,
+  .about-contact-cover-scene .about-pin-scene > .manifesto-section {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-top: 64px;
+    padding-bottom: 48px;
+  }
+
+  /* The cover-reveal director drives a sticky curtain that wipes from the
+     About (white) section to Contact (dark). On mobile we just want both
+     sections to scroll naturally. Mirrors the reduced-motion treatment. */
+  .about-contact-cover-scene {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .about-contact-cover-stage {
+    position: relative;
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .about-contact-cover-curtain,
+  .about-contact-cover-base,
+  .about-contact-cover-base > .dispatch-section {
+    transform: none !important;
+  }
+
+  .about-contact-cover-base > .dispatch-section {
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: auto;
+  }
+
+  .about-contact-cover-anchor {
+    position: static;
+    height: 0;
+  }
+
+  /* Reset the cinematic headline + reveal animations that the director would
+     normally drive — without scroll progress they stay frozen off-screen. */
+  .about-contact-cover-scene:not(.is-contact-revealing)
+    [data-contact-section]
+    [data-reveal="down"],
+  .about-contact-cover-scene:not(.is-contact-revealing)
+    [data-contact-section]
+    [data-reveal="up"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .about-contact-cover-scene:not(.is-contact-revealing)
+    [data-contact-section]
+    .manifesto-headline--cinematic
+    .hl-line-inner,
+  .about-contact-cover-scene:not(.is-contact-revealing)
+    [data-contact-section]
+    .manifesto-headline--cinematic
+    .hl-char {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .manifesto-body {
+    padding-bottom: 24px;
+  }
+
+  .manifesto-bottom-word {
+    display: none;
+  }
+
+  /* Pillars: full-width single column with consistent spacing */
+  .manifesto-pillars {
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .pillar-card,
+  .pillar-card-inner {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pillar-card-inner {
+    padding: 22px 18px;
+    gap: 10px;
+  }
+
+  .pillar-title {
+    font-size: 20px;
+    margin-top: 2px;
+  }
+
+  .pillar-body {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .pillar-corner {
+    top: 10px;
+    right: 12px;
+  }
+
+  .pillar-num {
+    font-size: 13px;
+  }
+
+  .pillar-label {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+  }
+
+  /* Reel card title (shown briefly when tapped/playing) — sized for thumbnails */
+  .reel-hover-meta {
+    padding: 18px 14px;
+  }
+
+  .reel-hover-top,
+  .reel-hover-bottom {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .reel-hover-rule {
+    width: 28px;
+    margin-bottom: 12px;
+  }
+
+  .reel-hover-type {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .reel-hover-title {
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+  }
+
+  /* Works section heading — give the eyebrow tagline a little more weight */
+  .works-type-block h2 {
+    font-size: clamp(36px, 11vw, 64px);
+    line-height: 1;
+  }
+
+  /* "// WORKS · 13 REELS" inline meta — bring up to the standard meta size */
+  .works-type-block p,
+  .works-type-block .meta-left,
+  .works-type-block .meta-right {
+    font-size: 11px;
+  }
+
+  /* Reel cards: no hover on touch — show a persistent ▶ + subtle gradient so
+     it's obvious each tile opens a video modal */
+  .reel-play-glyph {
+    opacity: 0.95;
+    bottom: 12px;
+    right: 14px;
+    font-size: 18px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
+  }
+
+  .reel-hover-veil {
+    opacity: 0.5;
+  }
+
+  /* Tame the oversized decorative wordmark so it doesn't overflow / scroll */
+  #about .section-bg-text,
+  .manifesto-section .section-bg-text {
+    display: none;
+  }
+
+  /* Desktop scroll-director writes inline `transform: translate(...) scale(...)`
+     on each card for a parallax/scale-in effect. On a stacked mobile layout
+     those transforms collapse cards on top of the lede and shrink them
+     mid-screen. Neutralize. */
+  .pillar-card {
+    transform: none !important;
+  }
+
+  /* Same director fades `--line-fade` on each reveal-line as the section
+     scrolls; on a non-pinned mobile flow there's no reason to fade. */
+  .reveal-line {
+    opacity: 1 !important;
+  }
+
+  /* Headline shrink (--about-shrink) only makes sense in the pinned scene */
+  .reveal-headline {
+    transform: none !important;
+  }
+
+  /* Desktop forces this single line; on a 375px viewport it overflows. */
+  .reveal-line .is-nowrap,
+  .is-nowrap {
+    white-space: normal;
+  }
+
+  .dispatch-panel {
+    margin-top: 24px;
+  }
+
+  .dispatch-people {
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .person-card,
+  .dispatch-people > .person-card:nth-child(2) {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 16px;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  /* Reset the desktop axial-symmetry mirror so both cards stack identically */
+  .dispatch-people > .person-card:nth-child(2) .person-main {
+    order: 0;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .qr-box {
+    order: 0;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .person-meta,
+  .dispatch-people > .person-card:nth-child(2) .person-name {
+    text-align: left;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .person-meta {
+    justify-content: flex-start;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .person-email-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .row-copy {
+    order: 0;
+    justify-self: end;
+  }
+
+  .dispatch-people > .person-card:nth-child(2) .person-email {
+    order: 0;
+    text-align: left;
+  }
+
+  /* Disable hover translate on mobile — those are pointer-only flourishes */
+  .dispatch-people > .person-card:nth-child(2):hover .person-email,
+  .person-card:hover .person-email {
+    transform: none;
   }
 
   .person-name {
-    font-size: 24px;
+    font-size: 28px;
+    letter-spacing: 0.04em;
+  }
+
+  .person-email {
+    font-size: 13px;
+  }
+
+  .person-meta {
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+  }
+
+  .row-copy {
+    font-size: 10.5px;
+    padding: 8px 12px;
+    letter-spacing: 0.2em;
   }
 
   .person-email-row {
-    grid-template-columns: 1fr;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
     gap: 10px;
   }
 
   .qr-box {
-    width: clamp(128px, 42vw, 164px);
+    width: 140px;
+    align-self: center;
+    justify-self: center;
   }
 
   .row-copy {
-    justify-self: start;
+    justify-self: end;
   }
 }
 
@@ -3156,7 +3616,7 @@ html[data-lang="en"] .reveal-line {
   50% { opacity: 0; }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   .footer-inner {
     flex-direction: column;
     align-items: flex-start;
@@ -3331,9 +3791,23 @@ html[data-lang="en"] .reveal-line {
   border-color: var(--line);
 }
 
-.pillar-card-inner > * {
+.pillar-card-inner > :not(.pillar-shape-blur) {
   position: relative;
   z-index: 1;
+}
+
+.pillar-shape-blur {
+  position: absolute;
+  inset: -1px;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms ease;
+  z-index: 0;
+}
+
+.pillar-card:hover .pillar-shape-blur {
+  opacity: 1;
 }
 
 /* ============================================
@@ -3453,7 +3927,7 @@ html[data-lang="en"] .reveal-line {
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   .works-type-title {
     font-size: clamp(42px, 9.5vw, 72px);
     transform: none;
@@ -3463,240 +3937,3 @@ html[data-lang="en"] .reveal-line {
     inset: 0 20% 0 40%;
   }
 }
-
-/* ─────────────────────────────────────────────────────────
-   Mobile UI · 触屏适配 (Route B)
-   - 汉堡菜单 + 全屏抽屉
-   - @media (pointer: coarse) 清除 hover 残留
-   - iOS 安全区 env(safe-area-inset-*)
-   - 触控目标 ≥44px
-   ───────────────────────────────────────────────────────── */
-
-/* 汉堡按钮：桌面默认隐藏 */
-.nav-toggle {
-  display: none;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  padding: 0;
-  cursor: pointer;
-}
-
-/* 抽屉：默认隐藏（双端都不应在桌面显示） */
-.nav-drawer {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: rgba(8, 8, 10, 0.94);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  padding:
-    max(96px, calc(env(safe-area-inset-top) + 72px))
-    clamp(24px, 6vw, 48px)
-    max(48px, env(safe-area-inset-bottom));
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-12px);
-  transition:
-    opacity 260ms ease,
-    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.nav-drawer.is-open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.nav-drawer-list {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(20px, 5vw, 36px);
-  font-family: var(--font-cn-display);
-}
-
-.nav-drawer-list a {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: 18px;
-  min-height: 44px;
-  color: var(--muted);
-  font-size: clamp(32px, 8vw, 56px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 320ms ease,
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 200ms ease;
-  transition-delay: calc(var(--i, 0) * 50ms);
-}
-
-.nav-drawer.is-open .nav-drawer-list a {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.nav-drawer-list a.active {
-  color: var(--text);
-}
-
-.nav-drawer-list a:active {
-  color: var(--orange);
-}
-
-.nav-drawer-num {
-  color: var(--orange);
-  font-family: var(--font-micro);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  font-weight: 500;
-}
-
-/* 移动端开关：显示汉堡，隐藏内联导航 */
-@media (max-width: 820px) {
-  .topbar {
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-    padding:
-      max(14px, env(safe-area-inset-top))
-      max(18px, env(safe-area-inset-right))
-      8px
-      max(18px, env(safe-area-inset-left));
-  }
-
-  .nav-links {
-    display: none;
-  }
-
-  .nav-toggle {
-    display: inline-grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.42);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    color: var(--text);
-    transition:
-      background-color 180ms ease,
-      border-color 180ms ease,
-      transform 160ms ease;
-  }
-
-  .nav-toggle:active {
-    transform: scale(0.94);
-    background: rgba(0, 0, 0, 0.62);
-  }
-
-  /* 模态关闭按钮避开刘海/灵动岛 */
-  .video-modal-close {
-    top: max(14px, calc(env(safe-area-inset-top) + 8px));
-    right: max(14px, calc(env(safe-area-inset-right) + 8px));
-  }
-
-  /* 触控目标兜底 */
-  .reel-frame {
-    min-height: 44px;
-  }
-}
-
-/* 触屏设备：hover 残留态清理 */
-@media (hover: none), (pointer: coarse) {
-  /* hover 触发的覆盖层在触屏不该常驻 */
-  .reel-card:hover .reel-hover-meta,
-  .reel-card:hover .reel-hover-veil {
-    opacity: 0;
-  }
-  /* 但 is-playing 状态（被点选过）依然显示 */
-  .reel-card.is-playing .reel-hover-meta,
-  .reel-card.is-playing .reel-hover-veil {
-    opacity: 1;
-  }
-
-  /* nav-links hover 残留（虽然抽屉里不会显示，但保险起见）*/
-  .nav-links a:hover::after {
-    opacity: 0;
-    transform: scaleX(0.4);
-  }
-  .nav-links a.active::after {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-
-  /* 模态关闭按钮 hover 状态不应在 tap 后卡住 */
-  .video-modal-close:hover {
-    background: rgba(0, 0, 0, 0.55);
-    border-color: rgba(255, 255, 255, 0.22);
-    transform: none;
-  }
-
-  /* 卡片 :hover 残留：触屏点完不应卡在"抬起"或"高对比"状态 */
-  .pillar-card:hover .pillar-card-inner {
-    translate: 0 0 !important;
-    transform: none !important;
-  }
-  .person-card:hover .qr-img {
-    opacity: inherit;
-    filter: none;
-  }
-  .reel-card:hover .reel-cover-image {
-    transform: scale(1.01);
-    filter: none;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────
-   ≤820px · 把 About→Contact 的 pin-scroll 幕布编排
-   降级为正常文档流（复用 prefers-reduced-motion 的静态布局）
-   ───────────────────────────────────────────────────────── */
-@media (max-width: 820px) {
-  .about-contact-cover-scene {
-    min-height: auto;
-    overflow: visible;
-  }
-  .about-contact-cover-stage {
-    position: relative;
-    display: block;
-    height: auto;
-    overflow: visible;
-  }
-  .about-contact-cover-curtain,
-  .about-contact-cover-base,
-  .about-contact-cover-base > .dispatch-section {
-    transform: none !important;
-  }
-  .about-contact-cover-base > .dispatch-section {
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-  .about-contact-cover-anchor {
-    position: static;
-    height: 0;
-  }
-  /* Contact 区块在移动端把 director 写入的 translateY 归零 */
-  [data-contact-section] .manifesto-meta[data-reveal],
-  [data-contact-section] .manifesto-lede[data-reveal],
-  [data-contact-section] .manifesto-headline {
-    transform: none !important;
-  }
-  /* Contact 人物卡：director 在移动端不再驱动 progress
-     直接显示终态，避免半透明/模糊残留 */
-  .dispatch-panel--reveal .person-card {
-    --contact-scroll-card-progress: 1;
-    --contact-io-card-progress: 1;
-    --contact-card-parallax-y: 0px;
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-  }
-}
-

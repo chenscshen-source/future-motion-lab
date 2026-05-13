@@ -8,21 +8,20 @@ type Props = {
   /** 移动端视频源；不传则移动端只显示 poster，不加载视频 */
   mobileSrc?: string;
   /** 静态封面图（首帧）— 移动端首屏依赖它，必传 */
-  poster: string;
-  /** ≤ 此宽度视为移动端，默认 820 */
+  poster?: string;
+  /** ≤ 此宽度视为移动端，默认 768 */
   mobileBreakpoint?: number;
 };
 
 /**
  * Hero 视频：
- * - 底层永远铺一张 <img poster>：保证视频未就绪 / 加载中 / 失败时背景都有图
- * - 视频层默认 SSR 不写 src（preload=none）→ 移动端首屏 0 字节视频
+ * - 服务端渲染时始终输出 poster + 桌面源占位（不会阻塞首屏；preload 由客户端决定）
  * - 客户端挂载后探测视口：
- *   · 桌面 → 注入 desktop src，autoplay
- *   · 移动 + mobileSrc 存在 → 注入 mobile src，autoplay
- *   · 移动 + 无 mobileSrc → 视频层保持空，仅显示底图
+ *   · 桌面 → preload=auto, autoplay
+ *   · 移动 → 若提供 mobileSrc 则切换源并 preload=metadata；否则完全不加载视频，仅显示 poster
+ * - 避免 hydration mismatch：服务端不写 autoplay/preload，全部由 effect 设置
  */
-export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 820 }: Props) {
+export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 768 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mode, setMode] = useState<"pending" | "desktop" | "mobile">("pending");
 
@@ -38,51 +37,32 @@ export function HeroVideo({ src, mobileSrc, poster, mobileBreakpoint = 820 }: Pr
     const video = videoRef.current;
     if (!video || mode === "pending") return;
 
-    if (mode === "mobile" && !mobileSrc) {
-      // 移动端无专用源 → 不挂任何 src，底图兜底显示
-      if (video.getAttribute("src")) {
-        video.removeAttribute("src");
-        video.load();
-      }
-      return;
-    }
-
-    const nextSrc = mode === "mobile" ? mobileSrc! : src;
+    // 移动端：优先使用 mobileSrc；缺省时回退到桌面源，保证背景视频始终可见
+    const nextSrc = mode === "mobile" ? (mobileSrc ?? src) : src;
     if (video.getAttribute("src") !== nextSrc) {
       video.setAttribute("src", nextSrc);
-      video.preload = mode === "mobile" ? "metadata" : "auto";
       video.load();
     }
+    video.preload = mode === "mobile" ? "metadata" : "auto";
     const playPromise = video.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
-        /* iOS / 微信首次需要用户手势失败，底图兜底 */
+        /* iOS / 微信首次需要用户手势，poster 会兜底 */
       });
     }
   }, [mode, src, mobileSrc]);
 
   return (
-    <>
-      {/* 永远存在的底图层：视频未就绪时是它顶住背景 */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="hero-video hero-video-poster"
-        src={poster}
-        alt=""
-        aria-hidden="true"
-        decoding="async"
-        fetchPriority="high"
-      />
-      <video
-        ref={videoRef}
-        className="hero-video"
-        poster={poster}
-        loop
-        muted
-        playsInline
-        preload="none"
-        aria-hidden="true"
-      />
-    </>
+    <video
+      ref={videoRef}
+      className="hero-video"
+      poster={poster}
+      loop
+      muted
+      playsInline
+      // SSR 阶段不设 src/preload/autoplay：避免首屏强制拉取 45MB
+      preload="none"
+      aria-hidden="true"
+    />
   );
 }

@@ -16,6 +16,7 @@ import { SectionRail } from "@/components/SectionRail";
 import { Topbar } from "@/components/Topbar";
 import { VideoShowcase } from "@/components/VideoShowcase";
 import { WorksScrollDirector } from "@/components/WorksScrollDirector";
+import ShapeBlur from "@/components/ShapeBlur";
 import Image from "next/image";
 import { aboutPillars } from "@/content/site";
 import { Fragment, type CSSProperties } from "react";
@@ -77,12 +78,7 @@ export default function Home() {
 
         <section className="deck-page home-deck" id="lab">
           <section className="hero-section">
-            <HeroVideo
-              src="/videos/automotive-hero.mp4"
-              mobileSrc="/videos/automotive-hero-mobile.mp4"
-              // 临时兜底：等 ffmpeg 跑完用真正的 automotive-hero-poster.jpg 替换
-              poster="/covers/works-02.jpg"
-            />
+            <HeroVideo src="/videos/automotive-hero.mp4" />
             <div className="hero-signature" aria-label="By Sean & Chen">
               <span className="hero-signature-avatars" aria-hidden="true">
                 <Image
@@ -91,7 +87,7 @@ export default function Home() {
                   alt=""
                   width={144}
                   height={144}
-                  sizes="(max-width: 820px) 32px, 72px"
+                  sizes="72px"
                 />
                 <Image
                   className="hero-signature-avatar hero-signature-avatar-sean"
@@ -99,7 +95,7 @@ export default function Home() {
                   alt=""
                   width={144}
                   height={144}
-                  sizes="(max-width: 820px) 32px, 72px"
+                  sizes="72px"
                 />
               </span>
               <span className="hero-signature-text">
@@ -243,6 +239,17 @@ export default function Home() {
                         style={{ "--sr-delay": `${i * 110}ms` } as CSSProperties}
                       >
                         <div className="pillar-card-inner">
+                          <span className="pillar-shape-blur" aria-hidden="true">
+                            <ShapeBlur
+                              variation={0}
+                              shapeSize={2.1}
+                              roundness={0}
+                              borderSize={0.04}
+                              circleSize={0.35}
+                              circleEdge={0.6}
+                              color={[0.65, 0.65, 0.65]}
+                            />
+                          </span>
                           <span className="pillar-corner" aria-hidden="true">[+]</span>
                           <p className="pillar-num">
                             <span className="pillar-arrow" aria-hidden="true">▶</span>
