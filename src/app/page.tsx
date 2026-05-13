@@ -16,7 +16,6 @@ import { SectionRail } from "@/components/SectionRail";
 import { Topbar } from "@/components/Topbar";
 import { VideoShowcase } from "@/components/VideoShowcase";
 import { WorksScrollDirector } from "@/components/WorksScrollDirector";
-import ShapeBlur from "@/components/ShapeBlur";
 import Image from "next/image";
 import { aboutPillars } from "@/content/site";
 import { Fragment, type CSSProperties } from "react";
@@ -239,17 +238,6 @@ export default function Home() {
                         style={{ "--sr-delay": `${i * 110}ms` } as CSSProperties}
                       >
                         <div className="pillar-card-inner">
-                          <span className="pillar-shape-blur" aria-hidden="true">
-                            <ShapeBlur
-                              variation={0}
-                              shapeSize={2.1}
-                              roundness={0}
-                              borderSize={0.04}
-                              circleSize={0.35}
-                              circleEdge={0.6}
-                              color={[0.65, 0.65, 0.65]}
-                            />
-                          </span>
                           <span className="pillar-corner" aria-hidden="true">[+]</span>
                           <p className="pillar-num">
                             <span className="pillar-arrow" aria-hidden="true">▶</span>
