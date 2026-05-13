@@ -21,9 +21,11 @@ export function BootLoader() {
       };
     }
 
-    // 移动端缩短：避免和首屏 LCP 叠加产生"白屏感"
-    const splitDelay = isMobile ? 220 : 380;
-    const doneDelay = isMobile ? 600 : 1280;
+    // 节奏：先让 logo + tagline 充分入场，再做分屏退出。
+    // 分屏 CSS 过渡是 850ms，所以 doneDelay 必须 ≥ splitDelay + 850
+    // 否则 loader 会在分屏动画跑完前被卸载（视觉上"啪"地消失）。
+    const splitDelay = isMobile ? 1100 : 1400;
+    const doneDelay = isMobile ? 2000 : 2350;
 
     const splitTimer = window.setTimeout(() => setPhase("split"), splitDelay);
     const doneTimer = window.setTimeout(() => {
