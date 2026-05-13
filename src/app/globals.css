@@ -44,6 +44,10 @@ html {
   background: var(--bg);
   -ms-overflow-style: none;
   scrollbar-width: none;
+  /* Lock text scaling — WeChat / iOS in-app browsers otherwise inflate
+     font-sizes unpredictably and break the headline layout. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -1610,6 +1614,60 @@ body.is-video-modal-open .side-rail {
 
   .topbar-lang-toggle button {
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  }
+
+  /* On-light sections (works / about / contact) — invert the topbar elements
+     to dark so they read on white backgrounds. */
+  .topbar[data-active="works"] .brand-logo img,
+  .topbar[data-active="about"] .brand-logo img,
+  .topbar[data-active="contact"] .brand-logo img {
+    filter: brightness(0) drop-shadow(0 1px 4px rgba(255, 255, 255, 0.6));
+  }
+
+  .topbar[data-active="works"] .topbar-menu-bar,
+  .topbar[data-active="about"] .topbar-menu-bar,
+  .topbar[data-active="contact"] .topbar-menu-bar {
+    background: rgba(10, 10, 10, 0.92);
+    filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.6));
+  }
+
+  .topbar[data-active="works"] .topbar-lang-toggle button,
+  .topbar[data-active="about"] .topbar-lang-toggle button,
+  .topbar[data-active="contact"] .topbar-lang-toggle button {
+    color: rgba(10, 10, 10, 0.5);
+    text-shadow: 0 1px 4px rgba(255, 255, 255, 0.6);
+  }
+
+  .topbar[data-active="works"] .topbar-lang-toggle button.is-active,
+  .topbar[data-active="about"] .topbar-lang-toggle button.is-active,
+  .topbar[data-active="contact"] .topbar-lang-toggle button.is-active {
+    color: rgba(10, 10, 10, 0.92);
+  }
+
+  .topbar[data-active="works"] .topbar-lang-toggle .rail-lang-divider,
+  .topbar[data-active="about"] .topbar-lang-toggle .rail-lang-divider,
+  .topbar[data-active="contact"] .topbar-lang-toggle .rail-lang-divider {
+    background: rgba(10, 10, 10, 0.35);
+  }
+
+  /* Drawer open — always dark backdrop, force light elements regardless of section */
+  .topbar.is-menu-open .brand-logo img,
+  .topbar.is-menu-open .topbar-menu-bar,
+  .topbar.is-menu-open .topbar-lang-toggle button {
+    filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.55));
+  }
+  .topbar.is-menu-open .topbar-menu-bar {
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .topbar.is-menu-open .topbar-lang-toggle button {
+    color: rgba(255, 255, 255, 0.42);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  }
+  .topbar.is-menu-open .topbar-lang-toggle button.is-active {
+    color: var(--orange, #ff7a1a);
+  }
+  .topbar.is-menu-open .topbar-lang-toggle .rail-lang-divider {
+    background: rgba(255, 255, 255, 0.22);
   }
 
   /* Push language toggle + hamburger to the right edge */
@@ -3213,6 +3271,15 @@ html[data-lang="en"] .reveal-line {
     font-size: clamp(26px, 7.2vw, 40px);
     line-height: 1.3;
     letter-spacing: 0;
+  }
+
+  /* English phrases are longer than Chinese — at the CN font-size they wrap
+     mid-phrase ("A studio built / on generative / AI,") on narrow screens.
+     Step the EN headline down so each line in the script stays on one line. */
+  html[data-lang="en"] .manifesto-headline,
+  html[data-lang="en"] .reveal-headline {
+    font-size: clamp(20px, 5.4vw, 30px);
+    line-height: 1.32;
   }
 
   /* Lede body text is primary reading content — bump from 12 → 14 */

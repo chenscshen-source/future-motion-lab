@@ -66,7 +66,10 @@ export function Topbar() {
   };
 
   return (
-    <header className={`topbar${menuOpen ? " is-menu-open" : ""}`}>
+    <header
+      className={`topbar${menuOpen ? " is-menu-open" : ""}`}
+      data-active={activeId}
+    >
       <a
         className="brandline brand-logo"
         href="#lab"
