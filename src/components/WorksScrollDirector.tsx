@@ -73,9 +73,10 @@ export function WorksScrollDirector() {
       if (!isActive() || scrollDistance <= 0) {
         works.style.setProperty("--works-track-offset", "0px");
         clearCards();
-        // On mobile/reduced-motion: snap title to normal, fire panel once
+        // On mobile/reduced-motion: snap title to normal; the panel sweep
+        // is triggered by the IntersectionObserver below instead of firing
+        // here on load (otherwise the user never sees it animate).
         if (typeTitle) typeTitle.style.transform = "";
-        if (!panelFired) { panelFired = true; typeBlock?.classList.add("is-scale-done"); }
         return;
       }
 
@@ -176,15 +177,33 @@ export function WorksScrollDirector() {
 
     const onResize = () => requestAnimationFrame(measure);
 
+    // Mobile / reduced-motion fallback: the desktop tick() drives the panel
+    // sweep via scroll progress; on mobile we fire it once via a scroll-driven
+    // bounding-rect check (IntersectionObserver doesn't reliably fire inside
+    // the pinning wrap on mobile). Triggered when the title block's top
+    // crosses ~70% of the viewport, mimicking the desktop "scale-settled" feel.
+    let mobilePanelFired = false;
+    const onScrollMobile = () => {
+      if (isActive() || mobilePanelFired || !typeBlock) return;
+      const rect = typeBlock.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.7 && rect.bottom > 0) {
+        mobilePanelFired = true;
+        typeBlock.classList.add("is-scale-done");
+      }
+    };
+
     measure();
+    onScrollMobile();
     rafId = requestAnimationFrame(tick);
     window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onScrollMobile, { passive: true });
     desktop.addEventListener("change", onResize);
     reducedMotion.addEventListener("change", onResize);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onScrollMobile);
       desktop.removeEventListener("change", onResize);
       reducedMotion.removeEventListener("change", onResize);
     };

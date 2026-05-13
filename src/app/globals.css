@@ -3955,7 +3955,17 @@ html[data-lang="en"] .reveal-line {
 @media (max-width: 768px) {
   .works-type-title {
     font-size: clamp(42px, 9.5vw, 72px);
-    transform: none;
+    /* Mobile entry: sits slightly scaled-up; is-scale-done (fired by
+       IntersectionObserver in WorksScrollDirector when the works section
+       enters view) drives it back to scale 1 — paired with the existing
+       panel-sweep keyframe for a coordinated entrance. */
+    transform: scale(1.18);
+    transform-origin: 0 50%;
+    transition: transform 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .works-type-block.is-scale-done .works-type-title {
+    transform: scale(1);
   }
 
   .works-type-panel {
