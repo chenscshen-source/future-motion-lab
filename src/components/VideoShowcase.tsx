@@ -156,16 +156,13 @@ export function VideoShowcase() {
 
           <span className="reel-hover-meta">
             <span className="reel-hover-top">
-              <span className="reel-hover-type">{isEn ? video.en : video.cn}</span>
+              <span className="reel-hover-type">
+                {(isEn ? video.brandEn : video.brand) ?? (isEn ? video.en : video.cn)}
+              </span>
             </span>
             <span className="reel-hover-rule" aria-hidden="true" />
             <span className="reel-hover-bottom">
               <span className="reel-hover-title">{isEn ? video.headline : video.headlineCn}</span>
-              {(video.brand || video.brandEn) && (
-                <span className="reel-hover-brand">
-                  {isEn ? video.brandEn : video.brand}
-                </span>
-              )}
             </span>
           </span>
 

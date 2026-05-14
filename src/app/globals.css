@@ -1173,10 +1173,9 @@ button {
 
 .reel-hover-bottom {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
-  gap: 0;
+  gap: 12px;
   animation: reel-bottom-out 0.8s cubic-bezier(0.25, 1, 0.35, 1);
 }
 
@@ -1222,11 +1221,14 @@ button {
 }
 
 .reel-hover-type {
-  font-size: 16px;
-  font-weight: 300;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 36ch;
+  text-align: center;
 }
 
 .reel-hover-title {
@@ -3425,8 +3427,10 @@ html[data-lang="en"] .reveal-line {
   }
 
   .reel-hover-type {
-    font-size: 10px;
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+    max-width: 28ch;
   }
 
   .reel-hover-title {
