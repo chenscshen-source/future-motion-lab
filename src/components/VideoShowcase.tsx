@@ -161,6 +161,11 @@ export function VideoShowcase() {
             <span className="reel-hover-rule" aria-hidden="true" />
             <span className="reel-hover-bottom">
               <span className="reel-hover-title">{isEn ? video.headline : video.headlineCn}</span>
+              {(video.brand || video.brandEn) && (
+                <span className="reel-hover-brand">
+                  {isEn ? video.brandEn : video.brand}
+                </span>
+              )}
             </span>
           </span>
 

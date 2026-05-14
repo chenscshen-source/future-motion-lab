@@ -1173,9 +1173,10 @@ button {
 
 .reel-hover-bottom {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 0;
   animation: reel-bottom-out 0.8s cubic-bezier(0.25, 1, 0.35, 1);
 }
 
@@ -1234,6 +1235,22 @@ button {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #fff;
+}
+
+/* Brand-attribution caption ("灵感来自 …" / "致敬 …") — quieter line beneath
+   the title; never SHOUT, just acknowledges the reference / style direction. */
+.reel-hover-brand {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-micro);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 32ch;
+  text-transform: none;
+  text-align: center;
 }
 
 .reel-play-glyph {
@@ -3416,6 +3433,13 @@ html[data-lang="en"] .reveal-line {
     font-size: 16px;
     letter-spacing: 0.04em;
     line-height: 1.15;
+  }
+
+  .reel-hover-brand {
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.45;
+    max-width: 28ch;
   }
 
   /* Works section heading — give the eyebrow tagline a little more weight */
