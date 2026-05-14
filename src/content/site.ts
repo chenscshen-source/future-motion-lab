@@ -72,7 +72,7 @@ export const showcaseCategories: ShowcaseCategory[] = [
     en: "Sci-Fi Off-Road",
     tone: "cyan",
     headline: "Auto Cinematic",
-    headlineCn: "汽车主题",
+    headlineCn: "越野美学",
     note: "速度。力量。线条。新品上线即用。",
     noteEn: "Speed. Force. Line. Drop-day ready.",
     brand: "灵感来自 Land Rover Defender 越野电影美学",
