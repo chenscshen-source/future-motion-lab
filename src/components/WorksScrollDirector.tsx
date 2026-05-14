@@ -178,17 +178,23 @@ export function WorksScrollDirector() {
     const onResize = () => requestAnimationFrame(measure);
 
     // Mobile / reduced-motion fallback: the desktop tick() drives the panel
-    // sweep via scroll progress; on mobile we fire it once via a scroll-driven
-    // bounding-rect check (IntersectionObserver doesn't reliably fire inside
-    // the pinning wrap on mobile). Triggered when the title block's top
-    // crosses ~70% of the viewport, mimicking the desktop "scale-settled" feel.
+    // sweep via scroll progress; on mobile we drive it via a bounding-rect
+    // check on each scroll tick (IntersectionObserver doesn't reliably fire
+    // inside the pinning wrap). Repeats every entry: when the block enters
+    // the viewport, replay the animation; when it leaves, reset so the next
+    // entry triggers a fresh playback.
     let mobilePanelFired = false;
     const onScrollMobile = () => {
-      if (isActive() || mobilePanelFired || !typeBlock) return;
+      if (isActive() || !typeBlock) return;
       const rect = typeBlock.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.7 && rect.bottom > 0) {
+      const vh = window.innerHeight;
+      const inView = rect.top < vh * 0.7 && rect.bottom > vh * 0.05;
+      if (inView && !mobilePanelFired) {
         mobilePanelFired = true;
         typeBlock.classList.add("is-scale-done");
+      } else if (!inView && mobilePanelFired) {
+        mobilePanelFired = false;
+        typeBlock.classList.remove("is-scale-done");
       }
     };
 
